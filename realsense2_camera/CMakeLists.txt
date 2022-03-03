@@ -2,6 +2,14 @@ cmake_minimum_required(VERSION 2.8.3)
 project(realsense2_camera)
 add_compile_options(-std=c++11)
 
+set(ENABLE_BACKWARD true)
+if(ENABLE_BACKWARD)
+    add_definitions(-D USE_BACKWARD)
+    set(LIBDW "dw")
+else()
+    set(LIBDW "")
+endif()
+
 option(BUILD_WITH_OPENMP "Use OpenMP" OFF)
 option(SET_USER_BREAK_AT_STARTUP "Set user wait point in startup (for debug)" OFF)
 
@@ -105,10 +113,12 @@ add_library(${PROJECT_NAME}
     include/constants.h
     include/realsense_node_factory.h
     include/base_realsense_node.h
-    include/t265_realsense_node.h
+#    include/t265_realsense_node.h
+        include/backward.hpp
     src/realsense_node_factory.cpp
     src/base_realsense_node.cpp
-    src/t265_realsense_node.cpp
+#    src/t265_realsense_node.cpp
+#        src/backward.cpp
     )
 
 add_dependencies(${PROJECT_NAME} ${PROJECT_NAME}_generate_messages_cpp)
@@ -121,7 +131,8 @@ target_link_libraries(${PROJECT_NAME}
     ${realsense2_LIBRARY}
     ${catkin_LIBRARIES}
     ${CMAKE_THREAD_LIBS_INIT}
-    )
+        ${LIBDW}
+        )
 
 if(WIN32)
 set_target_properties(${realsense2_LIBRARY} PROPERTIES MAP_IMPORTED_CONFIG_RELWITHDEBINFO RELEASE)

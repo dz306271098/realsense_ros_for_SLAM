@@ -41,7 +41,7 @@ namespace realsense2_camera
     const std::vector<stream_index_pair> IMAGE_STREAMS = {DEPTH, INFRA0, INFRA1, INFRA2,
                                                           COLOR,
                                                           FISHEYE,
-                                                          FISHEYE1, FISHEYE2, CONFIDENCE};
+                                                          FISHEYE1, FISHEYE2};
 
     const std::vector<stream_index_pair> HID_STREAMS = {GYRO, ACCEL, POSE};
 
