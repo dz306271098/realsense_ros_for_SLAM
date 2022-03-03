@@ -1732,11 +1732,12 @@ void BaseRealSenseNode::frame_callback(rs2::frame frame)
                     publishPointCloud(f.as<rs2::points>(), t, frameset);
                     continue;
                 }
-                if (stream_type == RS2_STREAM_DEPTH)
+                // by dz
+/*                if (stream_type == RS2_STREAM_DEPTH)
                 {
                     if (sent_depth_frame) continue;
                     sent_depth_frame = true;
-                    //TODO: 2022/3/3 by dz
+                    //TODO: 2022/3/3 这里可能只需要发布点云 by dz
                     if (_align_depth && is_color_frame)
                     {
                         publishFrame(f, t, COLOR,
@@ -1749,7 +1750,7 @@ void BaseRealSenseNode::frame_callback(rs2::frame frame)
                                      _depth_aligned_encoding);
                         continue;
                     }
-                }
+                }*/
                 publishFrame(f, t,
                              sip,
                              _image,
@@ -2443,7 +2444,8 @@ void BaseRealSenseNode::publishFrame(rs2::frame f, const ros::Time &t, const str
         cam_info.header.seq = seq[stream];
         info_publisher.publish(cam_info);
 
-        sensor_msgs::ImagePtr img;
+        // by dz
+/*        sensor_msgs::ImagePtr img;
         img = cv_bridge::CvImage(std_msgs::Header(), encoding.at(stream.first), image).toImageMsg();
         img->width = width;
         img->height = height;
@@ -2451,9 +2453,24 @@ void BaseRealSenseNode::publishFrame(rs2::frame f, const ros::Time &t, const str
         img->step = width * bpp;
         img->header.frame_id = cam_info.header.frame_id;
         img->header.stamp = t;
-        img->header.seq = seq[stream];
+        img->header.seq = seq[stream];*/
 
-        image_publisher.first.publish(img);
+        if ( !_emitter_on_off ||
+             (stream.first == rs2_stream::RS2_STREAM_COLOR) ||
+             (stream.first == rs2_stream::RS2_STREAM_DEPTH    && !(seq[stream] % 2) ) ||
+             (stream.first == rs2_stream::RS2_STREAM_INFRARED &&   seq[stream] % 2  ) )
+        {
+            sensor_msgs::ImagePtr img;
+            img = cv_bridge::CvImage(std_msgs::Header(), encoding.at(stream.first), image).toImageMsg();
+            img->width = width;
+            img->height = height;
+            img->is_bigendian = false;
+            img->step = width * bpp;
+            img->header.frame_id = cam_info.header.frame_id;
+            img->header.stamp = t;
+            img->header.seq = seq[stream];
+            image_publisher.first.publish(img);
+        }
         ROS_DEBUG("%s stream published", rs2_stream_to_string(f.get_profile().stream_type()));
     }
     if (is_publishMetadata)

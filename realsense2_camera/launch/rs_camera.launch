@@ -14,8 +14,8 @@
   <arg name="fisheye_height"      default="-1"/>
   <arg name="enable_fisheye"      default="false"/>
 
-  <arg name="depth_width"         default="-1"/>
-  <arg name="depth_height"        default="-1"/>
+  <arg name="depth_width"         default="640"/>
+  <arg name="depth_height"        default="480"/>
   <arg name="enable_depth"        default="true"/>
 
   <arg name="confidence_width"    default="-1"/>
@@ -23,21 +23,21 @@
   <arg name="enable_confidence"   default="true"/>
   <arg name="confidence_fps"      default="-1"/>
 
-  <arg name="infra_width"         default="848"/>
+  <arg name="infra_width"         default="640"/>
   <arg name="infra_height"        default="480"/>
   <arg name="enable_infra"        default="false"/>
   <arg name="enable_infra1"       default="true"/>
   <arg name="enable_infra2"       default="true"/>
   <arg name="infra_rgb"           default="false"/>
 
-  <arg name="color_width"         default="-1"/>
-  <arg name="color_height"        default="-1"/>
-  <arg name="enable_color"        default="true"/>
+  <arg name="color_width"         default="640"/>
+  <arg name="color_height"        default="480"/>
+  <arg name="enable_color"        default="false"/>
 
   <arg name="fisheye_fps"         default="-1"/>
-  <arg name="depth_fps"           default="-1"/>
-  <arg name="infra_fps"           default="30"/>
-  <arg name="color_fps"           default="-1"/>
+  <arg name="depth_fps"           default="60"/>
+  <arg name="infra_fps"           default="60"/>
+  <arg name="color_fps"           default="30"/>
   <arg name="gyro_fps"            default="200"/>
   <arg name="accel_fps"           default="200"/>
   <arg name="enable_gyro"         default="true"/>
@@ -49,10 +49,12 @@
   <arg name="allow_no_texture_points"   default="false"/>
   <arg name="ordered_pc"                default="true"/>
 
+<!--  <arg name="enable_emitter"            default="true"/>-->
+<!--  <arg name="emitter_on_off"            default="true"/>-->
   <arg name="enable_sync"               default="false"/>
-  <arg name="align_depth"               default="true"/>
+  <arg name="align_depth"               default="false"/>
 
-  <arg name="publish_tf"                default="true"/>
+  <arg name="publish_tf"                default="false"/>
   <arg name="tf_publish_rate"           default="0"/>
 
   <arg name="filters"                   default=""/>
@@ -88,6 +90,8 @@
       <arg name="enable_pointcloud"        value="$(arg enable_pointcloud)"/>
       <arg name="pointcloud_texture_stream" value="$(arg pointcloud_texture_stream)"/>
       <arg name="pointcloud_texture_index"  value="$(arg pointcloud_texture_index)"/>
+<!--      <arg name="enable_emitter"           value="$(arg enable_emitter)"/>-->
+<!--      <arg name="emitter_on_off"           value="$(arg emitter_on_off)"/>-->
       <arg name="enable_sync"              value="$(arg enable_sync)"/>
       <arg name="align_depth"              value="$(arg align_depth)"/>
 

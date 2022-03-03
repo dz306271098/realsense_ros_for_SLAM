@@ -38,14 +38,14 @@ namespace realsense2_camera
         diagnostic_updater_.add(frequency_status_);
       }
 
-      void tick()
+      void tick()//用于保持最近的统计数据
       {
         frequency_status_.tick();
       }
 
       void update()
       {
-          frequency_status_.tick();//by dz
+//          frequency_status_.tick();//by dz
         diagnostic_updater_.update();
       }
 
