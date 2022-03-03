@@ -45,6 +45,7 @@ namespace realsense2_camera
 
       void update()
       {
+          frequency_status_.tick();//by dz
         diagnostic_updater_.update();
       }
 
@@ -217,16 +218,13 @@ namespace realsense2_camera
         Extrinsics rsExtrinsicsToMsg(const rs2_extrinsics& extrinsics, const std::string& frame_id) const;
 
         IMUInfo getImuInfo(const stream_index_pair& stream_index);
-        void publishFrame(rs2::frame f, const ros::Time& t,
-                          const stream_index_pair& stream,
-                          std::map<stream_index_pair, cv::Mat>& images,
-                          const std::map<stream_index_pair, ros::Publisher>& info_publishers,
-                          const std::map<stream_index_pair, ImagePublisherWithFrequencyDiagnostics>& image_publishers,
-                          const bool is_publishMetadata,
-                          std::map<stream_index_pair, int>& seq,
-                          std::map<stream_index_pair, sensor_msgs::CameraInfo>& camera_info,
-                          const std::map<rs2_stream, std::string>& encoding,
-                          bool copy_data_from_frame = true);
+        void publishFrame(rs2::frame f, const ros::Time &t, const stream_index_pair &stream,
+                          std::map<stream_index_pair, cv::Mat> &images,
+                          const std::map<stream_index_pair, ros::Publisher> &info_publishers,
+                          const std::map<stream_index_pair, ImagePublisherWithFrequencyDiagnostics> &image_publishers,
+                          const bool is_publishMetadata, std::map<stream_index_pair, int> &seq,
+                          std::map<stream_index_pair, sensor_msgs::CameraInfo> &camera_info,
+                          const std::map<rs2_stream, std::string> &encoding, bool copy_data_from_frame = true);
         void publishMetadata(rs2::frame f, const std::string& frame_id);
         bool getEnabledProfile(const stream_index_pair& stream_index, rs2::stream_profile& profile);
 
@@ -307,6 +305,12 @@ namespace realsense2_camera
         bool _sync_frames;
         bool _pointcloud;
         bool _publish_odom_tf;
+
+        bool _enable_emitter;
+        bool _emitter_on_off;
+        bool _enable_auto_exposure;
+        int _manual_exposure;
+
         imu_sync_method _imu_sync_method;
         std::string _filters_str;
         stream_index_pair _pointcloud_texture;
@@ -314,6 +318,7 @@ namespace realsense2_camera
         std::vector<NamedFilter> _filters;
         std::shared_ptr<rs2::filter> _colorizer, _pointcloud_filter;
         std::vector<rs2::sensor> _dev_sensors;
+        std::map<rs2_stream, std::shared_ptr<rs2::align>> _align;
 
         std::map<stream_index_pair, cv::Mat> _depth_aligned_image;
         std::map<stream_index_pair, cv::Mat> _depth_scaled_image;
@@ -332,7 +337,7 @@ namespace realsense2_camera
         std::vector< OptionTemperatureDiag > _temperature_nodes;
         std::shared_ptr<std::thread> _monitoring_t;
         std::vector<std::function<void()> > _update_functions_v;
-        mutable std::condition_variable _cv_monitoring, _cv_tf, _update_functions_cv;
+        mutable std::condition_variable _cv_monitoring, _cv_tf, _update_functions_cv, _cv;
 
         stream_index_pair _base_stream;
         const std::string _namespace;

@@ -590,7 +590,31 @@ void BaseRealSenseNode::registerDynamicOption(ros::NodeHandle& nh, rs2::options 
         {
             std::cerr << e.what() << '\n';
         }
-        
+
+        //by dz
+        if (sensor.supports(RS2_OPTION_EMITTER_ENABLED))
+        {
+            if (_enable_emitter)
+                sensor.set_option(RS2_OPTION_EMITTER_ENABLED, 1.f); // Enable emitter
+            else
+                sensor.set_option(RS2_OPTION_EMITTER_ENABLED, 0.f); // Disable emitter
+        }
+        if (sensor.supports(RS2_OPTION_LASER_POWER))
+        {
+            // Query min and max values:
+            auto range = sensor.get_option_range(RS2_OPTION_LASER_POWER);
+            if (_enable_emitter)
+                sensor.set_option(RS2_OPTION_LASER_POWER, range.max); // Set max power
+            else
+                sensor.set_option(RS2_OPTION_LASER_POWER, 0.f); // Disable laser
+        }
+        if (sensor.supports(RS2_OPTION_EMITTER_ON_OFF)) // zxzx
+        {
+            if (_emitter_on_off)
+                sensor.set_option(RS2_OPTION_EMITTER_ON_OFF, 1.f); // Enable emitter
+            else
+                sensor.set_option(RS2_OPTION_EMITTER_ON_OFF, 0.f); // Disable emitter
+        }
     }
     ddynrec->publishServicesTopics();
     _ddynrec.push_back(ddynrec);
@@ -743,6 +767,13 @@ void BaseRealSenseNode::getParameters()
     _pnh.param("tf_publish_rate", _tf_publish_rate, TF_PUBLISH_RATE);
 
     _pnh.param("enable_sync", _sync_frames, SYNC_FRAMES);
+
+    //by dz
+    _pnh.param("enable_emitter", _enable_emitter, true);
+    _pnh.param("emitter_on_off", _emitter_on_off, false);
+    _pnh.param("enable_auto_exposure", _enable_auto_exposure, true);
+    _pnh.param("manual_exposure", _manual_exposure, 10000);
+
     if (_pointcloud || _align_depth || _filters_str.size() > 0)
         _sync_frames = true;
 
@@ -1705,28 +1736,29 @@ void BaseRealSenseNode::frame_callback(rs2::frame frame)
                 {
                     if (sent_depth_frame) continue;
                     sent_depth_frame = true;
+                    //TODO: 2022/3/3 by dz
                     if (_align_depth && is_color_frame)
                     {
                         publishFrame(f, t, COLOR,
-                                    _depth_aligned_image,
-                                    _depth_aligned_info_publisher,
-                                    _depth_aligned_image_publishers,
-                                    false,
-                                    _depth_aligned_seq,
-                                    _depth_aligned_camera_info,
-                                    _depth_aligned_encoding);
+                                     _depth_aligned_image,
+                                     _depth_aligned_info_publisher,
+                                     _depth_aligned_image_publishers,
+                                     false,
+                                     _depth_aligned_seq,
+                                     _depth_aligned_camera_info,
+                                     _depth_aligned_encoding);
                         continue;
                     }
                 }
                 publishFrame(f, t,
-                                sip,
-                                _image,
-                                _info_publisher,
-                                _image_publishers,
-                                true,
-                                _seq,
-                                _camera_info,
-                                _encoding);
+                             sip,
+                             _image,
+                             _info_publisher,
+                             _image_publishers,
+                             true,
+                             _seq,
+                             _camera_info,
+                             _encoding);
             }
             if (original_depth_frame && _align_depth)
             {
@@ -1737,14 +1769,14 @@ void BaseRealSenseNode::frame_callback(rs2::frame frame)
                     frame_to_send = original_depth_frame;
 
                 publishFrame(frame_to_send, t,
-                                DEPTH,
-                                _image,
-                                _info_publisher,
-                                _image_publishers,
-                                true,
-                                _seq,
-                                _camera_info,
-                                _encoding);
+                             DEPTH,
+                             _image,
+                             _info_publisher,
+                             _image_publishers,
+                             true,
+                             _seq,
+                             _camera_info,
+                             _encoding);
             }
         }
         else if (frame.is<rs2::video_frame>())
@@ -1764,14 +1796,14 @@ void BaseRealSenseNode::frame_callback(rs2::frame frame)
                 }
             }
             publishFrame(frame, t,
-                            sip,
-                            _image,
-                            _info_publisher,
-                            _image_publishers,
-                            true,
-                            _seq,
-                            _camera_info,
-                            _encoding);
+                         sip,
+                         _image,
+                         _info_publisher,
+                         _image_publishers,
+                         true,
+                         _seq,
+                         _camera_info,
+                         _encoding);
         }
     }
     catch(const std::exception& ex)
@@ -2360,16 +2392,13 @@ IMUInfo BaseRealSenseNode::getImuInfo(const stream_index_pair& stream_index)
     return info;
 }
 
-void BaseRealSenseNode::publishFrame(rs2::frame f, const ros::Time& t,
-                                     const stream_index_pair& stream,
-                                     std::map<stream_index_pair, cv::Mat>& images,
-                                     const std::map<stream_index_pair, ros::Publisher>& info_publishers,
-                                     const std::map<stream_index_pair, ImagePublisherWithFrequencyDiagnostics>& image_publishers,
-                                     const bool is_publishMetadata,
-                                     std::map<stream_index_pair, int>& seq,
-                                     std::map<stream_index_pair, sensor_msgs::CameraInfo>& camera_info,
-                                     const std::map<rs2_stream, std::string>& encoding,
-                                     bool copy_data_from_frame)
+void BaseRealSenseNode::publishFrame(rs2::frame f, const ros::Time &t, const stream_index_pair &stream,
+                                     std::map<stream_index_pair, cv::Mat> &images,
+                                     const std::map<stream_index_pair, ros::Publisher> &info_publishers,
+                                     const std::map<stream_index_pair, ImagePublisherWithFrequencyDiagnostics> &image_publishers,
+                                     const bool is_publishMetadata, std::map<stream_index_pair, int> &seq,
+                                     std::map<stream_index_pair, sensor_msgs::CameraInfo> &camera_info,
+                                     const std::map<rs2_stream, std::string> &encoding, bool copy_data_from_frame)
 {
     ROS_DEBUG("publishFrame(...)");
     unsigned int width = 0;
