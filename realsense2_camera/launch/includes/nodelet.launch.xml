@@ -54,7 +54,7 @@
   <arg name="ordered_pc"               default="false"/>
 
 <!--  <arg name="enable_emitter"      default="false"/>-->
-<!--  <arg name="emitter_on_off"      default="false"/>-->
+  <arg name="emitter_on_off"      default="false"/>
   <arg name="enable_sync"         default="false"/>
   <arg name="align_depth"         default="false"/>
 
@@ -127,7 +127,7 @@
     <param name="ordered_pc"               type="bool"   value="$(arg ordered_pc)"/>
 
 <!--    <param name="enable_emitter"            type="bool" value="$(arg enable_emitter)"/>-->
-<!--    <param name="emitter_on_off"            type="bool" value="$(arg emitter_on_off)"/>-->
+    <param name="emitter_on_off"            type="bool" value="$(arg emitter_on_off)"/>
     <param name="enable_sync"              type="bool" value="$(arg enable_sync)"/>
     <param name="align_depth"              type="bool" value="$(arg align_depth)"/>
 

@@ -8,6 +8,14 @@ option(SET_USER_BREAK_AT_STARTUP "Set user wait point in startup (for debug)" OF
 add_definitions(-D_CRT_SECURE_NO_WARNINGS)
 set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS ON)
 
+set(ENABLE_BACKWARD true)
+if(ENABLE_BACKWARD)
+    add_definitions(-D USE_BACKWARD)
+    set(LIBDW "dw")
+else()
+    set(LIBDW "")
+endif()
+
 find_package(catkin REQUIRED COMPONENTS
     message_generation
     nav_msgs
@@ -121,6 +129,7 @@ target_link_libraries(${PROJECT_NAME}
     ${realsense2_LIBRARY}
     ${catkin_LIBRARIES}
     ${CMAKE_THREAD_LIBS_INIT}
+${LIBDW}
     )
 
 if(WIN32)

@@ -12,6 +12,15 @@
 #include <thread>
 #include <regex>
 
+#ifdef USE_BACKWARD
+#define BACKWARD_HAS_DW 1
+#include "backward.hpp"
+namespace backward
+{
+    backward::SignalHandling sh;
+}
+#endif
+
 using namespace realsense2_camera;
 
 #define REALSENSE_ROS_EMBEDDED_VERSION_STR (VAR_ARG_STRING(VERSION: REALSENSE_ROS_MAJOR_VERSION.REALSENSE_ROS_MINOR_VERSION.REALSENSE_ROS_PATCH_VERSION))

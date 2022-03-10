@@ -450,6 +450,7 @@ void BaseRealSenseNode::registerDynamicOption(ros::NodeHandle& nh, rs2::options 
     std::shared_ptr<ddynamic_reconfigure::DDynamicReconfigure> ddynrec = std::make_shared<ddynamic_reconfigure::DDynamicReconfigure>(nh1);
     for (auto i = 0; i < RS2_OPTION_COUNT; i++)
     {
+std::cout <<  "0~~~~~~~~~~~~~~~~~~~~~~~~~Param '" <<std::endl;
         rs2_option option = static_cast<rs2_option>(i);
         const std::string option_name(create_graph_resource_name(rs2_option_to_string(option)));
         try
@@ -458,6 +459,7 @@ void BaseRealSenseNode::registerDynamicOption(ros::NodeHandle& nh, rs2::options 
             {
                 continue;
             }
+std::cout <<  "1~~~~~~~~~~~~~~~~~~~~~~~~~Param '" << nh1.resolveName(option_name) <<std::endl;
             if (is_checkbox(sensor, option))
             {
                 auto option_value = bool(sensor.get_option(option));
@@ -471,6 +473,7 @@ void BaseRealSenseNode::registerDynamicOption(ros::NodeHandle& nh, rs2::options 
                 sensor.get_option_description(option));
                 continue;
             }
+
             const auto enum_dict = get_enum_method(sensor, option);
             if (enum_dict.empty())
             {
@@ -590,9 +593,9 @@ void BaseRealSenseNode::registerDynamicOption(ros::NodeHandle& nh, rs2::options 
         {
             std::cerr << e.what() << '\n';
         }
-
+std::cout <<  "2~~~~~~~~~~~~~~~~~~~~~~~~~Param '" << nh1.resolveName(option_name) <<std::endl;
         //by dz
-        if (sensor.supports(RS2_OPTION_EMITTER_ENABLED))
+/*        if (sensor.supports(RS2_OPTION_EMITTER_ENABLED))
         {
             if (_enable_emitter)
                 sensor.set_option(RS2_OPTION_EMITTER_ENABLED, 1.f); // Enable emitter
@@ -608,6 +611,7 @@ void BaseRealSenseNode::registerDynamicOption(ros::NodeHandle& nh, rs2::options 
             else
                 sensor.set_option(RS2_OPTION_LASER_POWER, 0.f); // Disable laser
         }
+*/
         if (sensor.supports(RS2_OPTION_EMITTER_ON_OFF)) // zxzx
         {
             if (_emitter_on_off)
@@ -615,9 +619,11 @@ void BaseRealSenseNode::registerDynamicOption(ros::NodeHandle& nh, rs2::options 
             else
                 sensor.set_option(RS2_OPTION_EMITTER_ON_OFF, 0.f); // Disable emitter
         }
+
     }
     ddynrec->publishServicesTopics();
     _ddynrec.push_back(ddynrec);
+std::cout <<  "4~~~~~~~~~~~~~~~~~~~~~~~~~Param '"  <<std::endl;
 }
 
 void BaseRealSenseNode::registerDynamicReconfigCb(ros::NodeHandle& nh)
@@ -626,6 +632,7 @@ void BaseRealSenseNode::registerDynamicReconfigCb(ros::NodeHandle& nh)
 
     for(rs2::sensor sensor : _dev_sensors)
     {
+
         std::string module_name = create_graph_resource_name(sensor.get_info(RS2_CAMERA_INFO_NAME));
         ROS_DEBUG_STREAM("module_name:" << module_name);
         registerDynamicOption(nh, sensor, module_name);
